@@ -38,7 +38,7 @@ import http from 'http'
 import { parse } from 'url'
 import next from 'next'
 import payload from 'payload'
-import config from './payload.config.js' // adjust if .ts
+import config from './payload.config.ts' // adjust if .ts
 
 const port = parseInt(process.env.PORT || '7777', 10)
 const dev = process.env.NODE_ENV !== 'production'

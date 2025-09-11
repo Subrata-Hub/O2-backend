@@ -17,7 +17,7 @@ import { HeroBanner } from './collections/hero-banner'
 import { Coupons } from './collections/coupons'
 import { Subscribers } from './collections/subscribers'
 import { Orders } from './collections/orders/index'
-import { GiftCards } from "./collections/GiftCards";
+import { GiftCards } from './collections/GiftCards'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)

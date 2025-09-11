@@ -216,33 +216,57 @@
 
 // start()
 
-import { createServer } from 'http'
-import { parse } from 'url'
-import next from 'next'
-import httpProxy from 'http-proxy'
+// import { createServer } from 'http'
+// import { parse } from 'url'
+// import next from 'next'
+// import httpProxy from 'http-proxy'
 
-const PORT = parseInt(process.env.PORT || '4000', 10) // Next.js port
-const PAYLOAD_PORT = parseInt(process.env.PAYLOAD_PORT || '7777', 10) // Payload API port
-const dev = process.env.NODE_ENV !== 'production'
-const app = next({ dev })
-const handle = app.getRequestHandler()
+// const PORT = parseInt(process.env.PORT || '4000', 10) // Next.js port
+// const PAYLOAD_PORT = parseInt(process.env.PAYLOAD_PORT || '7777', 10) // Payload API port
+// const dev = process.env.NODE_ENV !== 'production'
+// const app = next({ dev })
+// const handle = app.getRequestHandler()
 
-const apiProxy = httpProxy.createProxyServer()
+// const apiProxy = httpProxy.createProxyServer()
 
-app.prepare().then(() => {
-  createServer((req, res) => {
-    const parsedUrl = parse(req.url, true)
+// app.prepare().then(() => {
+//   createServer((req, res) => {
+//     const parsedUrl = parse(req.url, true)
 
-    if (parsedUrl.pathname?.startsWith('/api')) {
-      // Forward /api requests to Payload backend
-      apiProxy.web(req, res, { target: `http://localhost:${PAYLOAD_PORT}` })
-      return
-    }
+//     if (parsedUrl.pathname?.startsWith('/api')) {
+//       // Forward /api requests to Payload backend
+//       apiProxy.web(req, res, { target: `http://localhost:${PAYLOAD_PORT}` })
+//       return
+//     }
 
-    // Otherwise, Next.js handles the request
-    handle(req, res, parsedUrl)
-  }).listen(PORT, () => {
-    console.log(`> Next.js server listening on http://localhost:${PORT}`)
-    console.log(`> Proxying /api to Payload at http://localhost:${PAYLOAD_PORT}`)
-  })
+//     // Otherwise, Next.js handles the request
+//     handle(req, res, parsedUrl)
+//   }).listen(PORT, () => {
+//     console.log(`> Next.js server listening on http://localhost:${PORT}`)
+//     console.log(`> Proxying /api to Payload at http://localhost:${PAYLOAD_PORT}`)
+//   })
+// })
+
+// server.js
+import express from 'express'
+import payload from 'payload'
+import config from './payload.config.js'
+
+const PORT = process.env.PORT || 7777
+const server = express()
+
+// Initialize Payload CMS
+await payload.init({
+  config,
+  express: server,
+  onInit: () => {
+    payload.logger.info(`✅ Payload Admin ready at ${payload.getAdminURL()}`)
+  },
+})
+
+// Payload handles /api internally
+server.use(payload.express)
+
+server.listen(PORT, () => {
+  console.log(`🚀 Payload API running on http://localhost:${PORT}`)
 })

@@ -234,7 +234,7 @@ app.prepare().then(() => {
 
     // If request starts with /api, forward to Payload backend
     if (parsedUrl.pathname?.startsWith('/api')) {
-      apiProxy.web(req, res, { target: 'http://localhost:4000' }) // <-- Payload port
+      apiProxy.web(req, res, { target: 'http://localhost:7777' }) // <-- Payload backend
       return
     }
 

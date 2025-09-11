@@ -221,7 +221,8 @@ import { parse } from 'url'
 import next from 'next'
 import httpProxy from 'http-proxy'
 
-const port = parseInt(process.env.PORT || '7777', 10)
+const PORT = parseInt(process.env.PORT || '4000', 10) // Next.js port
+const PAYLOAD_PORT = parseInt(process.env.PAYLOAD_PORT || '7777', 10) // Payload API port
 const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
@@ -232,19 +233,16 @@ app.prepare().then(() => {
   createServer((req, res) => {
     const parsedUrl = parse(req.url, true)
 
-    // If request starts with /api, forward to Payload backend
     if (parsedUrl.pathname?.startsWith('/api')) {
-      apiProxy.web(req, res, { target: 'http://localhost:7777' }) // <-- Payload backend
+      // Forward /api requests to Payload backend
+      apiProxy.web(req, res, { target: `http://localhost:${PAYLOAD_PORT}` })
       return
     }
 
-    // Otherwise let Next.js handle
+    // Otherwise, Next.js handles the request
     handle(req, res, parsedUrl)
-  }).listen(port)
-
-  console.log(
-    `> Server listening at http://localhost:${port} as ${
-      dev ? 'development' : process.env.NODE_ENV
-    }`,
-  )
+  }).listen(PORT, () => {
+    console.log(`> Next.js server listening on http://localhost:${PORT}`)
+    console.log(`> Proxying /api to Payload at http://localhost:${PAYLOAD_PORT}`)
+  })
 })
